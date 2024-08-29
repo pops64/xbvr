@@ -74,49 +74,65 @@ func SetupCron() {
 	log.Println(fmt.Sprintf("Next Rescrape Task at %v", cronInstance.Entry(rescrapTask).Next))
 	log.Println(fmt.Sprintf("Next Rescan Task at %v", cronInstance.Entry(rescanTask).Next))
 	log.Println(fmt.Sprintf("Next Preview Generation Task at %v", cronInstance.Entry(previewTask).Next))
-	log.Println(fmt.Sprintf("Next Actor Rescripe Task at %v", cronInstance.Entry(actorScrapeTask).Next))
+	log.Println(fmt.Sprintf("Next Actor Rescrape Task at %v", cronInstance.Entry(actorScrapeTask).Next))
 	log.Println(fmt.Sprintf("Next Stashdb Rescrape Task at %v", cronInstance.Entry(stashdbScrapeTask).Next))
 	log.Println(fmt.Sprintf("Next Link Scenes Task at %v", cronInstance.Entry(linkScenesTask).Next))
 }
 
+var cronJobRunning bool
+
 func scrapeCron() {
-	if !session.HasActiveSession() {
-		tasks.Scrape("_enabled", "", "")
-	}
-	log.Println(fmt.Sprintf("Next Rescrape Task at %v", cronInstance.Entry(rescrapTask).Next))
+	cronWait()
+	cronJobRunning = true
+	tasks.Scrape("_enabled", "", "")
+	cronJobRunning = false
+	log.Println(fmt.Sprintf("Next Scene Rescrape Task at %v", cronInstance.Entry(rescrapTask).Next))
 }
 
 func rescanCron() {
-	if !session.HasActiveSession() {
-		tasks.RescanVolumes(-1)
-	}
+	cronWait()
+	cronJobRunning = true
+	tasks.RescanVolumes(-1)
+	cronJobRunning = false
 	log.Println(fmt.Sprintf("Next Rescan Task at %v", cronInstance.Entry(rescanTask).Next))
 }
 func actorRescrapeCron() {
-	if !session.HasActiveSession() {
-		tasks.ScrapeActors()
-	}
-	log.Println(fmt.Sprintf("Next Rescrape Task at %v", cronInstance.Entry(rescrapTask).Next))
+	cronWait()
+	cronJobRunning = true
+	tasks.ScrapeActors()
+	cronJobRunning = false
+	log.Println(fmt.Sprintf("Next Actor Rescrape Task at %v", cronInstance.Entry(rescrapTask).Next))
 }
 func stashdbRescrapeCron() {
-	if !session.HasActiveSession() {
-		api.StashdbRunAll()
-	}
+	cronWait()
+	cronJobRunning = true
+	api.StashdbRunAll()
+	cronJobRunning = false
 	log.Println(fmt.Sprintf("Next Stashdb Rescrape Task at %v", cronInstance.Entry(rescrapTask).Next))
 }
 
 func linkScenesCron() {
-	if !session.HasActiveSession() {
-		tasks.MatchAlternateSources()
-	}
+	cronWait()
+	cronJobRunning = true
+	tasks.MatchAlternateSources()
+	cronJobRunning = false
 	log.Println(fmt.Sprintf("Next Link Scenes Task at %v", cronInstance.Entry(rescrapTask).Next))
+}
+
+func cronWait() {
+	for i := 0; (cronJobRunning || session.HasActiveSession()) && i < 4; i++ {
+		log.Infoln("A Cron job tried to start but another task is running, sleeping for 15 mins. Attempt:", i)
+		time.Sleep(15 * time.Minute)
+	}
 }
 
 var previewGenerateInProgress = false
 
 func generatePreviewCron() {
-	if !session.HasActiveSession() || !previewGenerateInProgress {
+	if !previewGenerateInProgress {
+		cronWait()
 		previewGenerateInProgress = true
+		cronJobRunning = true
 		defer func() {
 			previewGenerateInProgress = false
 		}()
@@ -129,6 +145,7 @@ func generatePreviewCron() {
 			tasks.GeneratePreviews(&endTime)
 		}
 	}
+	cronJobRunning = false
 	log.Println(fmt.Sprintf("Next Preview Generation Task at %v", cronInstance.Entry(previewTask).Next))
 }
 func formatCronSchedule(schedule config.CronSchedule) string {
