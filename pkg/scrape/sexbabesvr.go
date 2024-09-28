@@ -40,7 +40,6 @@ func SexBabesVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out 
 
 		// Cover Url
 		coverURL := e.Request.Ctx.GetAny("coverURL").(string)
-		log.Infoln(coverURL)
 		sc.Covers = append(sc.Covers, coverURL)
 
 		// Title
@@ -54,10 +53,22 @@ func SexBabesVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out 
 		})
 
 		// Synopsis
-		e.ForEach(`div.video-detail>div.container>p`, func(id int, e *colly.HTMLElement) {
-			// Handle blank <p></p> surrounding the synopsis
-			if strings.TrimSpace(e.Text) != "" {
-				sc.Synopsis = strings.TrimSpace(e.Text)
+		e.ForEach(`div.list-of-categories__p`, func(id int, e *colly.HTMLElement) {
+			synopsis := e.Text
+
+			if synopsis == "" {
+				synopsis = e.ChildText(`p.ql-align-justify`)
+
+				if synopsis == "" {
+					e.ForEach(`div`, func(id int, e *colly.HTMLElement) {
+						synopsis = synopsis + " " + strings.TrimSpace(e.Text)
+					})
+
+				}
+			}
+
+			if strings.TrimSpace(synopsis) != "" {
+				sc.Synopsis = strings.TrimSpace(synopsis)
 			}
 		})
 
@@ -114,7 +125,6 @@ func SexBabesVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out 
 			sceneURL := e.Request.AbsoluteURL(e.Attr("href"))
 			if !funk.ContainsString(knownScenes, sceneURL) {
 				coverURL := e.ChildAttr("a.video-container__image img", "data-src")
-				log.Infoln("Scraped Cover", coverURL)
 				ctx := colly.NewContext()
 				ctx.Put("coverURL", coverURL)
 				sceneCollector.Request("GET", sceneURL, nil, ctx, nil)
