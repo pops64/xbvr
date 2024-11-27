@@ -166,11 +166,12 @@
         </div>
       </div>
 
+      <!-- Scraper Auth Cookies -->
       <div class="columns" v-if="activeTab == 4">
         <div class="column">
           <section>
-            <b-field :label="$t('SLR')" label-position="on-border">
-              <b-input v-model="slrAuthCookie" :placeholder="$t('auth_jwt')" type="password"></b-input>
+            <b-field :label="$t('SLR Scraper')" label-position="on-border">
+              <b-input v-model="slrAuthCookie" :placeholder="$t('Enter the value for the auth_jwt')" type="password"></b-input>
             </b-field>
             <b-field>
               <b-button type="is-primary" @click="save">Save</b-button>

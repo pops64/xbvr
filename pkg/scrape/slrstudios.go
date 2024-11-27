@@ -345,9 +345,9 @@ func SexLikeReal(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out
 		}
 	})
 
-	siteCollector.OnResponse(func(r *colly.Response) {
-		r.Save("slr.html")
-	})
+	// siteCollector.OnResponse(func(r *colly.Response) {
+	// 	r.Save("slr.html")
+	// })
 
 	siteCollector.OnHTML(`div.c-grid--scenes article`, func(e *colly.HTMLElement) {
 		sceneURL := e.Request.AbsoluteURL(e.ChildAttr("a[data-qa=scenes-grid-item-link-title]", "href"))
