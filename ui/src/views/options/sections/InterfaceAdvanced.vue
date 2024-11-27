@@ -9,6 +9,7 @@
             <b-tab-item label="Actor Settings"/>
             <b-tab-item label="Create Custom Site"/>
             <b-tab-item :label="$t('Alternate Sites')"/>
+            <b-tab-item label="Auth Tokens"/>
       </b-tabs>
 
       <!-- Screen Details Tab -->
@@ -157,6 +158,19 @@
               <b-button type="is-primary" @click="clearAltSrcKeepEdits" style="margin-right: 1em;">Clear scene links - keep edits</b-button>
               <b-button type="is-primary" @click="clearAltSrc" style="margin-right: 1em;">Clear scene links</b-button>
               <b-button type="is-primary" @click="relinkAltSrc" style="margin-right: 1em;">Re-link scenes</b-button>
+            </b-field>
+            <b-field>
+              <b-button type="is-primary" @click="save">Save</b-button>
+            </b-field>
+          </section>
+        </div>
+      </div>
+
+      <div class="columns" v-if="activeTab == 4">
+        <div class="column">
+          <section>
+            <b-field :label="$t('SLR')" label-position="on-border">
+              <b-input v-model="slrAuthCookie" :placeholder="$t('auth_jwt')" type="password"></b-input>
             </b-field>
             <b-field>
               <b-button type="is-primary" @click="save">Save</b-button>
@@ -338,6 +352,14 @@ export default {
     },
     isLoading: function () {
       return this.$store.state.optionsAdvanced.loading
+    },
+    slrAuthCookie: {
+      get () {
+        return this.$store.state.optionsAdvanced.advanced.slrAuthCookie
+      },
+      set (value) {
+        this.$store.state.optionsAdvanced.advanced.slrAuthCookie = value
+      }
     }
   }
 }
