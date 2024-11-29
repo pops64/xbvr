@@ -34,7 +34,7 @@ func RealityLoversSite(wg *models.ScrapeWG, updateSite bool, knownScenes []strin
 		sc.Studio = "RealityLovers"
 		sc.Site = siteID
 		sc.SiteID = ""
-		sc.HomepageURL, _ = strings.CutSuffix(e.Request.URL.String(), "/")
+		sc.HomepageURL = e.Request.URL.String()
 
 		// Cover Url
 		coverURL := e.Request.Ctx.GetAny("coverURL").(string)
@@ -79,7 +79,7 @@ func RealityLoversSite(wg *models.ScrapeWG, updateSite bool, knownScenes []strin
 		// Synposis
 		sc.Synopsis = strings.TrimSpace(e.ChildText("div.accordion-body"))
 
-		tmp := strings.Split(sc.HomepageURL, "/")
+		tmp := strings.Split(strings.TrimSuffix(sc.HomepageURL, "/"), "/")
 
 		// Title
 		sc.Title = e.Request.Ctx.GetAny("title").(string)
