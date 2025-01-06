@@ -32,6 +32,16 @@ func SexLikeReal(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out
 	sceneCollector := createCollector("www.sexlikereal.com")
 	siteCollector := createCollector("www.sexlikereal.com")
 
+	if config.Config.Advanced.SLRAuthCookie != "" {
+		// These cookies are needed for age verification.
+		siteCollector.OnRequest(func(r *colly.Request) {
+			r.Headers.Set("Cookie", `auth_jwt=` + config.Config.Advanced.SLRAuthCookie)
+		})
+		sceneCollector.OnRequest(func(r *colly.Request) {
+			r.Headers.Set("Cookie", `auth_jwt=` + config.Config.Advanced.SLRAuthCookie)
+		})
+	}
+
 	commonDb, _ := models.GetCommonDB()
 
 	// RegEx Patterns
@@ -333,6 +343,10 @@ func SexLikeReal(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out
 			pageURL := e.Request.AbsoluteURL(e.Attr("href"))
 			WaitBeforeVisit("www.sexlikereal.com", siteCollector.Visit, pageURL)
 		}
+	})
+
+	siteCollector.OnResponse(func(r *colly.Response) {
+		r.Save("slr.html")
 	})
 
 	siteCollector.OnHTML(`div.c-grid--scenes article`, func(e *colly.HTMLElement) {

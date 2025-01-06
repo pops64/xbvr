@@ -287,6 +287,7 @@ func VRCosplayX(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out 
 
 func BabeVR(wg *models.ScrapeWG, updateSite bool, knownScenes []string, out chan<- models.ScrapedScene, singleSceneURL string, singeScrapeAdditionalInfo string, limitScraping bool) error {
 	return BadoinkSite(wg, updateSite, knownScenes, out, singleSceneURL, "babevr", "BabeVR", "Badoink", "https://babevr.com/vrpornvideos?order=newest", singeScrapeAdditionalInfo, limitScraping, "", true)
+
 }
 
 func init() {

@@ -60,6 +60,7 @@ type ObjectConfig struct {
 		UseAltSrcInFileMatching      bool      `default:"true" json:"useAltSrcInFileMatching"`
 		UseAltSrcInScriptFilters     bool      `default:"true" json:"useAltSrcInScriptFilters"`
 		IgnoreReleasedBefore         time.Time `json:"ignoreReleasedBefore"`
+		SLRAuthCookie                string    `default:"" json:"slrAuthCookie"`
 	} `json:"advanced"`
 	Funscripts struct {
 		ScrapeFunscripts bool `default:"false" json:"scrapeFunscripts"`
